@@ -1,3 +1,5 @@
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/services/sign_up_service.dart';
+import 'package:ecommerce_app_huma_volve/network/api_client.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
@@ -17,13 +19,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late final TextEditingController nameController;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
-
+  bool isLoading = false;
+  late SignUpService signUpService;
   @override
   void initState() {
     nameController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
-
+    signUpService = SignUpService(ApiClient());
     super.initState();
   }
 
@@ -34,6 +37,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
     passwordController.dispose();
     super.dispose();
   }
+
+
+
+Future<void> signUpFunction(BuildContext context) async {
+  setState(() {
+    isLoading = true;
+  });
+
+  bool isSuccess = await signUpService.signUp(
+    name: nameController.text.trim(),
+    email: emailController.text.trim(),
+    password: passwordController.text.trim(),
+  );
+
+
+  setState(() {
+    isLoading = false;
+  });
+
+  if (isSuccess) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Account created successfully! Please login."), backgroundColor: Colors.green),
+    );
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Sign up failed, please try another email"), backgroundColor: Colors.red),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -110,16 +148,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 40),
                 PrimaryButton(
                   text: 'Sign Up',
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: ()async {
+    if (_formKey.currentState?.validate() ?? false) {
+      await signUpFunction(context);
+    }
+  },
                 ),
                 const SizedBox(height: 24),
                 Row(

@@ -1,10 +1,12 @@
 
+import 'package:ecommerce_app_huma_volve/features/auth/login/models/login_model.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/services/login_service.dart';
+import 'package:ecommerce_app_huma_volve/network/api_client.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/theme.dart';
-import '../../../main_navigation/screens/main_navigation_screen.dart';
 import '../../sign_up/screens/sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,12 +20,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
+  bool isLoading = false;
+  late LoginService loginService;
 
   @override
   void initState() {
     emailController = TextEditingController();
     passwordController = TextEditingController();
-
+    loginService = LoginService(ApiClient());
     super.initState();
   }
 
@@ -33,6 +37,42 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
     super.dispose();
   }
+
+
+
+ Future<void> loginFunction(BuildContext context) async {
+  if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("please enter the right email and password")),
+    );
+    return;
+  }
+
+  setState(() {
+    isLoading = true;
+  });
+
+  LoginModel? result = await loginService.login(
+    email: emailController.text.trim(),
+    password: passwordController.text.trim(),
+  );
+
+  setState(() {
+    isLoading = false;
+  });
+
+  if (result != null && result.accessToken != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("login success"), backgroundColor: Colors.green),
+    );
+    
+    Navigator.pushReplacementNamed(context, '/home');
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("error please recheck your data"), backgroundColor: Colors.red),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +146,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                PrimaryButton(
+                 PrimaryButton(
                   text: 'Login',
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigationScreen(),
-                        ),
-                      );
-                    }
-                  },
+                  isLoading: isLoading,
+                  onPressed: () async {
+    if (_formKey.currentState!.validate()) {
+      await loginFunction(context);
+    }
+  },
                 ),
                 const SizedBox(height: 24),
                 Row(

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../home/models/product_model.dart';
+import '../../home/domain/entities/product_entity.dart';
 import '../../../core/theme.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final ProductModel product;
+  final ProductEntity product;
 
   const ProductDetailsScreen({super.key, required this.product});
 

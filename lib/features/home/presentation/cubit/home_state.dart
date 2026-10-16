@@ -14,6 +14,11 @@ class HomeState extends Equatable {
   final String searchQuery;
   final String? errorMessage;
 
+  // Pagination
+  final bool isLoadingMore;
+  final bool hasReachedMax;
+  final bool loadMoreFailed;
+
   const HomeState({
     this.status = HomeStatus.initial,
     this.categories = const [],
@@ -21,6 +26,9 @@ class HomeState extends Equatable {
     this.selectedCategoryId,
     this.searchQuery = '',
     this.errorMessage,
+    this.isLoadingMore = false,
+    this.hasReachedMax = false,
+    this.loadMoreFailed = false,
   });
 
   HomeState copyWith({
@@ -31,6 +39,9 @@ class HomeState extends Equatable {
     bool clearCategory = false,
     String? searchQuery,
     String? errorMessage,
+    bool? isLoadingMore,
+    bool? hasReachedMax,
+    bool? loadMoreFailed,
   }) {
     return HomeState(
       status: status ?? this.status,
@@ -40,6 +51,9 @@ class HomeState extends Equatable {
           clearCategory ? null : (selectedCategoryId ?? this.selectedCategoryId),
       searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      loadMoreFailed: loadMoreFailed ?? this.loadMoreFailed,
     );
   }
 
@@ -51,5 +65,8 @@ class HomeState extends Equatable {
         selectedCategoryId,
         searchQuery,
         errorMessage,
+        isLoadingMore,
+        hasReachedMax,
+        loadMoreFailed,
       ];
 }
